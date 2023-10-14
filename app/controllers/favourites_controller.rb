@@ -1,4 +1,10 @@
 class FavouritesController < ApplicationController
+  def index
+    favourites = Favourite.where(user_id: params[:user_id])
+
+    render json: favourites, status: 200
+  end
+
   def create
     favourite = Favourite.new(favourite_params)
 
