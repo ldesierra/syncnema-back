@@ -1,0 +1,2 @@
+class Serie < Content
+end
