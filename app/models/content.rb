@@ -1,4 +1,7 @@
 class Content < ApplicationRecord
+  include Elasticsearch::Model
+  include Elasticsearch::Model::Callbacks
+
   validates_presence_of :title, :imdb_id, :tmdb_id
 
   has_many :ratings

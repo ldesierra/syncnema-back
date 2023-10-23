@@ -17,6 +17,11 @@ gem "bootsnap", require: false
 gem 'sparql-client'
 gem 'figaro'
 
+gem 'elasticsearch-model'
+gem 'elasticsearch-rails'
+gem 'elasticsearch'
+gem 'disco'
+
 gem "rack-cors"
 
 gem 'byebug', platforms: %i[mri mingw x64_mingw] # Call 'byebug' anywhere in the code to stop execution and get a debugger console
