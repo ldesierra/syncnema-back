@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_14_233400) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_22_212019) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "cast_members", force: :cascade do |t|
+    t.string "name"
+    t.string "image"
+    t.jsonb "awards"
+    t.bigint "content_id"
+    t.jsonb "occupations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["content_id"], name: "index_cast_members_on_content_id"
+  end
 
   create_table "contents", force: :cascade do |t|
     t.string "type"
@@ -21,6 +32,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_14_233400) do
     t.string "tmdb_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "adult"
+    t.text "overview"
+    t.date "release"
+    t.date "duration"
+    t.string "image_url"
+    t.string "content_rating"
+    t.string "trailer_url"
   end
 
   create_table "favourites", force: :cascade do |t|
@@ -40,6 +58,16 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_14_233400) do
     t.datetime "updated_at", null: false
     t.index ["content_id"], name: "index_ratings_on_content_id"
     t.index ["user_id"], name: "index_ratings_on_user_id"
+  end
+
+  create_table "streaming_sites", force: :cascade do |t|
+    t.string "image_url"
+    t.string "name"
+    t.string "kind"
+    t.bigint "content_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["content_id"], name: "index_streaming_sites_on_content_id"
   end
 
   create_table "users", force: :cascade do |t|

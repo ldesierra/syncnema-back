@@ -1,4 +1,6 @@
 class FavouritesController < ApplicationController
+  before_action :load_user
+
   def index
     favourites = Favourite.where(user_id: params[:user_id])
 
@@ -27,7 +29,17 @@ class FavouritesController < ApplicationController
 
   private
 
+  def load_user
+    @user = User.find_by(external_id: params[:rating][:user_id])
+
+    return render json: { error: 'User not found' }, status: 404 if @user.blank?
+  end
+
   def favourite_params
-    params.require(:favourite).permit(:content_id, :user_id)
+    strong_params = params.require(:favourite).permit(:content_id, :user_id)
+
+    strong_params = strong_params.merge!(user_id: @user.id)
+
+    strong_params
   end
 end
