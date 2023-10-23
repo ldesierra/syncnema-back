@@ -11,6 +11,8 @@ class ImdbTmdbExpand < ApplicationService
 
       data = JSON.parse(request.body)
       record = record.merge(data)
+      record.merge!(tmdb_genres: record[:genres])
+      record.merge!(tmdb_runtime: record[:runtime])
 
       # Expand data with Imdb
       request = HTTParty.get("https://search.imdbot.workers.dev/?tt=#{record[:imdb_id]}")
