@@ -81,6 +81,8 @@ test:
 #
 production:
   <<: *default
-  database: syncnema_back_production
-  username: syncnema_back
-  password: <%= ENV["SYNCNEMA_BACK_DATABASE_PASSWORD"] %>
+  host: node3644-env-0693283.web.elasticloud.uy
+  port: 5432
+  database: basesita
+  username: webadmin
+  password: IVGxcl58184
