@@ -10,19 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_22_212019) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_29_150103) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "cast_member_contents", force: :cascade do |t|
+    t.bigint "content_id"
+    t.bigint "cast_member_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cast_member_id"], name: "index_cast_member_contents_on_cast_member_id"
+    t.index ["content_id"], name: "index_cast_member_contents_on_content_id"
+  end
 
   create_table "cast_members", force: :cascade do |t|
     t.string "name"
     t.string "image"
     t.jsonb "awards"
-    t.bigint "content_id"
     t.jsonb "occupations"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["content_id"], name: "index_cast_members_on_content_id"
   end
 
   create_table "contents", force: :cascade do |t|
@@ -34,11 +41,29 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_22_212019) do
     t.datetime "updated_at", null: false
     t.boolean "adult"
     t.text "overview"
-    t.date "release"
-    t.date "duration"
     t.string "image_url"
     t.string "content_rating"
     t.string "trailer_url"
+    t.integer "duration"
+    t.text "plot"
+    t.integer "revenue"
+    t.integer "lifetime_gross"
+    t.text "tmdb_genres"
+    t.text "imdb_genres"
+    t.integer "tmdb_runtime"
+    t.integer "imdb_runtime"
+    t.integer "production_budget"
+    t.integer "budget"
+    t.string "review_name"
+    t.string "review_body"
+    t.integer "rating"
+    t.integer "metacritic"
+    t.integer "episodes"
+    t.text "trivia"
+    t.text "quotes"
+    t.string "release_date_imdb"
+    t.string "release_date_tmdb"
+    t.string "director"
   end
 
   create_table "favourites", force: :cascade do |t|
