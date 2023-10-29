@@ -24,7 +24,10 @@ class HomeController < ApplicationController
   end
 
   def get_generic_recommendations
-    recommendations = Content.select(:id, :title, :image_url, :type).order(rating: :desc).limit(@limit)
+    recommendations = Content.select(:id, :title, :image_url, :type)
+                              .order(rating: :desc)
+                              .limit(@limit)
+
     recommendations.map { |r| r.attributes.merge({ type: r.type }) }
   end
 
