@@ -2,13 +2,18 @@ class FavouritesController < ApplicationController
   before_action :load_user
 
   def index
-    favourites = Favourite.where(user_id: params[:user_id])
+    favourites = Favourite.where(user_id: @user.id)
+                          .joins(:content)
+                          .select('contents.title, contents.image_url, contents.type, contents.id')
 
-    render json: favourites, status: 200
+    splitted_favourites = favourites.group_by { |favourite| favourite[:type] }
+
+    response = { movies: splitted_favourites['Movie'], series: splitted_favourites['Serie'] }
+    render json: response, status: 200
   end
 
   def create
-    favourite = Favourite.new(favourite_params)
+    favourite = Favourite.find_or_initialize_by(favourite_params)
 
     if favourite.save
       render json: favourite, status: 201
@@ -18,7 +23,7 @@ class FavouritesController < ApplicationController
   end
 
   def destroy
-    favourite = Favourite.find_by(id: params[:id])
+    favourite = Favourite.find_by(content_id: params[:content_id], user_id: @user.id)
 
     return render json: { error: 'Favourite not found' }, status: 404 unless favourite
 
@@ -30,14 +35,14 @@ class FavouritesController < ApplicationController
   private
 
   def load_user
-    @user = User.find_by(external_id: params[:rating][:user_id])
+    user_id = params[:user_id] || params[:favourite][:user_id]
+    @user = User.find_by(external_id: user_id)
 
-    return render json: { error: 'User not found' }, status: 404 if @user.blank?
+    render json: { error: 'User not found' }, status: 404 if @user.blank?
   end
 
   def favourite_params
     strong_params = params.require(:favourite).permit(:content_id, :user_id)
-
     strong_params = strong_params.merge!(user_id: @user.id)
 
     strong_params
