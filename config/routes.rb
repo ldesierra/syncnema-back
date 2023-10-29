@@ -5,8 +5,6 @@ Rails.application.routes.draw do
     put :update, on: :collection
   end
 
-  resource :recommendations, only: [:show]
-
   resources :favourites, only: [:create, :index] do
     delete :destroy, on: :collection
   end
