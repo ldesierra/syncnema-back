@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_29_150103) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_29_165011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -56,7 +56,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_29_150103) do
     t.integer "budget"
     t.string "review_name"
     t.string "review_body"
-    t.integer "rating"
+    t.float "rating"
     t.integer "metacritic"
     t.integer "episodes"
     t.text "trivia"
