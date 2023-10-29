@@ -27,11 +27,7 @@ module Searchable
     def index_document
       self.reload
 
-      if deleted?
-        self.__elasticsearch__.delete_document
-      else
-        self.__elasticsearch__.index_document
-      end
+      self.__elasticsearch__.index_document
     rescue => e
       p "===index_document==ERROR==#{e.inspect}" unless Rails.env.test?
     end

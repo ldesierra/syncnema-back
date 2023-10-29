@@ -24,6 +24,7 @@ class LoadContent < ApplicationService
 
           Content::FIELD_MAPPINGS.each do |mapping_key, mapping_value|
             value = mapping_value.split('/').inject(movie) do |value, operation|
+              return nil if value.blank?
               if operation.starts_with?('.')
                 value.send(operation.gsub('.', ''))
               else
@@ -55,13 +56,15 @@ class LoadContent < ApplicationService
           cast_info = WikidataExpand.call(movie['cast']['edges'].map { |s| s['node']['name']['id'] })
 
           cast_info.each do |cast_member|
-            CastMember.create(
-              name: cast_member[:actorName].to_s,
+            actor = CastMember.find_or_initialize_by(name: cast_member[:actorName].to_s)
+            actor.update(
               occupations: cast_member[:occupation].to_s&.split('|'),
-              content: record,
               image: cast_member[:actorImage].to_s,
               awards: cast_member[:actorAwards].to_s&.split('|')
             )
+
+            join = CastMemberContent.find_or_initialize_by(content_id: record.id, cast_member_id: actor.id)
+            join.save
           end
         end
 
@@ -71,13 +74,14 @@ class LoadContent < ApplicationService
 
           Content::FIELD_MAPPINGS.each do |mapping_key, mapping_value|
             value = mapping_value.split('/').inject(serie) do |value, operation|
-              if operation.starts_with?('.')
+              if value.blank?
+                nil
+              elsif operation.starts_with?('.')
                 value.send(operation.gsub('.', ''))
               else
                 value[operation]
               end
             end
-
             attributes[mapping_key] = value
           end
 
@@ -102,17 +106,19 @@ class LoadContent < ApplicationService
           cast_info = WikidataExpand.call(serie['cast']['edges'].map { |s| s['node']['name']['id'] })
 
           cast_info.each do |cast_member|
-            CastMember.create(
-              name: cast_member[:actorName],
+            actor = CastMember.find_or_initialize_by(name: cast_member[:actorName].to_s)
+            actor.update(
               occupations: cast_member[:occupation].to_s&.split('|'),
-              content: record,
-              image: cast_member[:actorImage],
+              image: cast_member[:actorImage].to_s,
               awards: cast_member[:actorAwards].to_s&.split('|')
             )
+
+            join = CastMemberContent.find_or_initialize_by(content_id: record.id, cast_member_id: actor.id)
+            join.save
           end
         end
       end
-    rescue e
+    rescue
       return puts 'Error fetch movies'
     end
 
