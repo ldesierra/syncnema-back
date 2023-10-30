@@ -16,9 +16,9 @@ class LoadContent < ApplicationService
       return puts 'Error fetching movies'
     end
 
-    begin
-      ActiveRecord::Base.transaction do
-        movies.each do |movie|
+    movies.each do |movie|
+      begin
+        ActiveRecord::Base.transaction do
           record = Movie.find_or_initialize_by(title: movie['name'])
           attributes = {}
 
@@ -39,6 +39,12 @@ class LoadContent < ApplicationService
           attributes[:tmdb_id] = movie[:id]
 
           record.update!(attributes)
+          record.combine_dates
+          record.combine_genres
+          record.combine_plots
+          record.combine_fields('imdb_runtime', 'tmdb_runtime', 'combined_runtime')
+          record.combine_fields('budget', 'production_budget', 'combined_budget')
+          record.combine_fields('lifetime_gross', 'revenue', 'combined_revenue')
 
           movie[:streaming_sites]&.each do |kind, value|
             next if kind == 'link'
@@ -67,8 +73,15 @@ class LoadContent < ApplicationService
             join.save
           end
         end
+      rescue
+        puts "Error fetching movie #{movie['name']}"
+        next
+      end
+    end
 
-        series.each do |serie|
+    series.each do |serie|
+      begin
+        ActiveRecord::Base.transaction do
           record = Serie.find_or_initialize_by(title: serie['name'])
           attributes = {}
 
@@ -89,6 +102,12 @@ class LoadContent < ApplicationService
           attributes[:tmdb_id] = serie[:id]
 
           record.update!(attributes)
+          record.combine_dates
+          record.combine_genres
+          record.combine_plots
+          record.combine_fields('imdb_runtime', 'tmdb_runtime', 'combined_runtime')
+          record.combine_fields('budget', 'production_budget', 'combined_budget')
+          record.combine_fields('lifetime_gross', 'revenue', 'combined_revenue')
 
           serie[:streaming_sites]&.each do |kind, value|
             next if kind == 'link'
@@ -117,11 +136,10 @@ class LoadContent < ApplicationService
             join.save
           end
         end
+      rescue
+        puts "Error fetching serie #{serie['name']}"
+        next
       end
-    rescue
-      return puts 'Error fetch movies'
     end
-
-    puts 'success'
   end
 end
