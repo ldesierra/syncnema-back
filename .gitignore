@@ -17,7 +17,7 @@
 /tmp/pids/*
 !/tmp/pids/
 !/tmp/pids/.keep
-application.yml
+/config/application.yml
 
 # Ignore uploaded files in development.
 /storage/*

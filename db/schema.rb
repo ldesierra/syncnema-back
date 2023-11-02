@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_30_000355) do
+ActiveRecord::Schema[7.0].define(version: 2023_11_02_125359) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -30,6 +30,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_30_000355) do
     t.jsonb "occupations"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "content_streaming_sites", force: :cascade do |t|
+    t.bigint "content_id"
+    t.bigint "streaming_site_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["content_id"], name: "index_content_streaming_sites_on_content_id"
+    t.index ["streaming_site_id"], name: "index_content_streaming_sites_on_streaming_site_id"
   end
 
   create_table "contents", force: :cascade do |t|
@@ -95,10 +104,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_30_000355) do
     t.string "image_url"
     t.string "name"
     t.string "kind"
-    t.bigint "content_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["content_id"], name: "index_streaming_sites_on_content_id"
   end
 
   create_table "users", force: :cascade do |t|

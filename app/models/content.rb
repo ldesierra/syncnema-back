@@ -5,7 +5,8 @@ class Content < ApplicationRecord
 
   has_many :favourites, dependent: :destroy
   has_many :ratings, dependent: :destroy
-  has_many :streaming_sites, dependent: :destroy
+  has_many :content_streaming_sites
+  has_many :streaming_sites, through: :content_streaming_sites
   has_many :cast_member_contents, dependent: :destroy
   has_many :cast_members, through: :cast_member_contents
 
@@ -40,8 +41,24 @@ class Content < ApplicationRecord
   settings index: { number_of_shards: 1 } do
     mappings dynamic: 'false' do
       indexes :title, type: 'text'
-      #indexes :adult, type: 'keyword'
+      indexes :id, type: 'integer'
+      indexes :combined_genres, type: 'text'
+      indexes :director, type: 'text'
+      # indexes :cast_member_contents, type: 'nested' do
+      #   indexes :name, type: 'text'
+      # end
+      # platform
     end
+  end
+
+  def as_indexed_json(options={})
+    {
+      title: title,
+      id: id,
+      combined_genres: combined_genres,
+      director: director,
+      # cast_member_contents: cast_member_contents.map { |cmc| { actor: cmc.cast_member.name } }
+    }
   end
 
   def combine_dates
@@ -82,8 +99,46 @@ class Content < ApplicationRecord
   end
 
   def combine_genres
+    self.combined_genres = imdb_genres if tmdb_genres.blank?
+    self.combined_genres = tmdb_genres if imdb_genres.blank?
+
+    if tmdb_genres.present? && imdb_genres.present?
+      begin
+        merged_genres = ChatGpt.call(
+          "Merge this two movie genres lists into one with no repetitions or synonims:
+          #{tmdb_genres},
+          #{imdb_genres}.
+          Return only the merged list of genres separated by ',' with no brackets before or after."
+        )
+      rescue
+        puts 'Error fetching genres'
+      end
+
+      self.combined_genres = merged_genres
+    end
+
+    save!
   end
 
   def combine_plots
+    self.combined_plot = plot if overview.blank?
+    self.combined_plot = overview if plot.blank?
+
+    if overview.present? && plot.present?
+      begin
+        new_plot = ChatGpt.call(
+          "Merge this two movie plots into one with the most important and interesting body:
+          Plot 1: #{plot}.
+          Plot 2: #{overview}.
+          Return only the finished plot with nothing before or after."
+        )
+      rescue
+        puts 'error fetching plot'
+      end
+
+      self.combined_plot = new_plot
+    end
+
+    save!
   end
 end

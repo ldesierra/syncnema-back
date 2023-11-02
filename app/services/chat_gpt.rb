@@ -15,7 +15,7 @@ class ChatGpt < ApplicationService
       api_url,
       body: body.to_json,
       headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{ENV['GPT_API_KEY']}"},
-      timeout: 10
+      timeout: 30
     )
     raise response['error']['message'] unless response.code == 200
 

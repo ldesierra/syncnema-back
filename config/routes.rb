@@ -9,5 +9,7 @@ Rails.application.routes.draw do
     delete :destroy, on: :collection
   end
 
+  resources :contents, only: [:show, :index]
+
   root to: 'home#index'
 end

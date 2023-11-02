@@ -46,15 +46,20 @@ class LoadContent < ApplicationService
           record.combine_fields('budget', 'production_budget', 'combined_budget')
           record.combine_fields('lifetime_gross', 'revenue', 'combined_revenue')
 
+
           movie[:streaming_sites]&.each do |kind, value|
             next if kind == 'link'
 
             value.each do |site|
-              StreamingSite.create!(
-                content: record,
+              streaming_site = StreamingSite.find_or_create_by(
                 kind: kind,
                 name: site['provider_name'],
                 image_url: "https://image.tmdb.org/t/p/w500#{site['logo_path']}"
+              )
+
+              ContentStreamingSite.create!(
+                content: record,
+                streaming_site: streaming_site
               )
             end
           end
@@ -113,11 +118,15 @@ class LoadContent < ApplicationService
             next if kind == 'link'
 
             value.each do |site|
-              StreamingSite.create!(
-                content: record,
+              streaming_site = StreamingSites.find_or_create_by(
                 kind: kind,
                 name: site['provider_name'],
                 image_url: "https://image.tmdb.org/t/p/w500#{site['logo_path']}"
+              )
+
+              ContentStreamingSite.create!(
+                content: record,
+                streaming_site: streaming_site
               )
             end
           end

@@ -15,15 +15,6 @@ module Searchable
   end
 
   module Indexing
-    def as_indexed_json(options={})
-      self.as_json(root: false,
-        only: %i[
-          title,
-          adult
-        ]
-      )
-    end
-
     def index_document
       self.reload
 
