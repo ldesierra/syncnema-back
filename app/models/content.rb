@@ -41,13 +41,20 @@ class Content < ApplicationRecord
   settings index: { number_of_shards: 1 } do
     mappings dynamic: 'false' do
       indexes :title, type: 'text'
+      indexes :type, type: 'text'
       indexes :id, type: 'integer'
       indexes :combined_genres, type: 'text'
       indexes :director, type: 'text'
-      # indexes :cast_member_contents, type: 'nested' do
-      #   indexes :name, type: 'text'
-      # end
-      # platform
+      indexes :cast_member_contents, type: 'nested' do
+        indexes :cast_member, type: 'nested' do
+          indexes :name, type: 'text'
+        end
+      end
+      indexes :content_streaming_sites, type: 'nested' do
+        indexes :streaming_site, type: 'nested' do
+          indexes :name, type: 'text'
+        end
+      end
     end
   end
 
@@ -55,9 +62,15 @@ class Content < ApplicationRecord
     {
       title: title,
       id: id,
+      type: type,
       combined_genres: combined_genres,
       director: director,
-      # cast_member_contents: cast_member_contents.map { |cmc| { actor: cmc.cast_member.name } }
+      cast_member_contents: cast_member_contents.map {
+        |cmc| { cast_member: { name: cmc.cast_member.name } }
+      },
+      content_streaming_sites: content_streaming_sites.map {
+        |css| { streaming_site: { name: css.streaming_site.name } }
+      }
     }
   end
 
