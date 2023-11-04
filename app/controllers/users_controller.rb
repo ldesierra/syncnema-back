@@ -9,6 +9,15 @@ class UsersController < ApplicationController
     end
   end
 
+  def destroy
+    user = User.find_by(external_id: params[:id])
+
+    render json: { errors: 'User not found' }, status: 404 and return unless user
+
+    user.destroy
+    render json: {}, status: 204
+  end
+
   private
 
   def user_params

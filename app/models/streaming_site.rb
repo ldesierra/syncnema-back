@@ -1,5 +1,6 @@
 class StreamingSite < ApplicationRecord
   validates_presence_of :name, :kind
 
-  belongs_to :content
+  has_many :content_streaming_sites
+  has_many :contents, through: :content_streaming_sites
 end

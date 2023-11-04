@@ -6,21 +6,24 @@ class ImdbTmdbExpand < ApplicationService
 
   def call
     @records.map do |record|
-      # Expand data with Tmdb
       request = HTTParty.get("https://api.themoviedb.org/3/#{@kind}/#{record[:id]}?language=en-US", headers: { 'Authorization': ENV['TMDB_AUTH_TOKEN'] })
 
       data = JSON.parse(request.body)
       record = record.merge(data)
-      record.merge!(tmdb_genres: record[:genres])
-      record.merge!(tmdb_runtime: record[:runtime])
 
-      # Expand data with Imdb
+      record.merge!('tmdb_genres' => record['genres'].map {|s| s['name']})
+      record.merge!('tmdb_runtime' => record['runtime'])
+
       request = HTTParty.get("https://search.imdbot.workers.dev/?tt=#{record[:imdb_id]}")
 
       data = JSON.parse(request.body)
       ['short', 'top', 'main'].each do |sub_hash|
         record = record.merge(data[sub_hash])
       end
+
+      record.merge!('release_date_imdb' => "#{record['releaseDate']['year']}-#{record['releaseDate']['month']}-#{record['releaseDate']['day']}")
+      creator = record['creator'].filter { |creator| creator["@type"] == 'Person' }.last
+      record.merge!('creator' => "#{creator['name'] if creator.present?}")
 
       record
     end
