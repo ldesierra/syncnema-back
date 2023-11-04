@@ -1,11 +1,12 @@
 class LoadContent < ApplicationService
-  def initialize(quantity)
+  def initialize(quantity, first_page)
     @quantity = quantity
+    @first_page = first_page
   end
 
   def call
     begin
-      (movies, series) = FetchTopRatedContent.call(@quantity)
+      (movies, series) = FetchTopRatedContent.call(@quantity, @first_page)
 
       movies = FetchStreamingSites.call(movies, 'movie')
       series = FetchStreamingSites.call(series, 'tv')
@@ -46,7 +47,6 @@ class LoadContent < ApplicationService
           record.combine_fields('budget', 'production_budget', 'combined_budget')
           record.combine_fields('lifetime_gross', 'revenue', 'combined_revenue')
 
-
           movie[:streaming_sites]&.each do |kind, value|
             next if kind == 'link'
 
@@ -78,7 +78,7 @@ class LoadContent < ApplicationService
             join.save
           end
         end
-      rescue
+      rescue => error
         puts "Error fetching movie #{movie['name']}"
         next
       end
@@ -118,7 +118,7 @@ class LoadContent < ApplicationService
             next if kind == 'link'
 
             value.each do |site|
-              streaming_site = StreamingSites.find_or_create_by(
+              streaming_site = StreamingSite.find_or_create_by(
                 kind: kind,
                 name: site['provider_name'],
                 image_url: "https://image.tmdb.org/t/p/w500#{site['logo_path']}"
@@ -145,7 +145,7 @@ class LoadContent < ApplicationService
             join.save
           end
         end
-      rescue
+      rescue => error
         puts "Error fetching serie #{serie['name']}"
         next
       end

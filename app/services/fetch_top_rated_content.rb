@@ -1,18 +1,19 @@
 class FetchTopRatedContent < ApplicationService
-  def initialize(quantity)
+  def initialize(quantity, first_page)
     @quantity = quantity
+    @first_page = first_page
   end
 
   def call
-    movies = fetch_content('movie')
-    series = fetch_content('tv')
+    movies = fetch_content('movie', @first_page)
+    series = fetch_content('tv', @first_page)
 
     return [movies, series]
   end
 
-  def fetch_content(kind)
+  def fetch_content(kind, first_page)
     remaining = @quantity
-    page = 1
+    page = first_page
     result = []
 
     while remaining > 0

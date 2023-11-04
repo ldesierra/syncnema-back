@@ -100,7 +100,7 @@ class Content < ApplicationRecord
     self.send("#{combined_field}=", send(field_1)) if send(field_2).blank?
     self.send("#{combined_field}=", send(field_2)) if send(field_1).blank?
 
-    if send(field_2).present? && send(field_2).present?
+    if send(field_1).present? && send(field_2).present?
       if send(field_1) > send(field_2)
         self.send("#{combined_field}=", send(field_1) - ((send(field_1) - send(field_2)) / 2))
       else

@@ -22,7 +22,7 @@ class ImdbTmdbExpand < ApplicationService
       end
 
       record.merge!('release_date_imdb' => "#{record['releaseDate']['year']}-#{record['releaseDate']['month']}-#{record['releaseDate']['day']}")
-      creator = record['creator'].filter { |creator| creator["@type"] == 'Person' }.last
+      creator = record['creator']&.filter { |creator| creator["@type"] == 'Person' }&.last
       record.merge!('creator' => "#{creator['name'] if creator.present?}")
 
       record
