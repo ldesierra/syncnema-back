@@ -1,1 +1,8 @@
-Elasticsearch::Model.client = Elasticsearch::Client.new(url: 'https://docker3649-env-8954386.web.elasticloud.uy:9200', ssl: { verify: false })
+Elasticsearch::Model.client = Elasticsearch::Client.new(
+  url: 'https://elastic:qGd_hgPzRSUmnyn0qAbq@179.31.2.183:9200',
+  transport_options: {
+    ssl: {
+      verify: false
+    }
+  }
+)
