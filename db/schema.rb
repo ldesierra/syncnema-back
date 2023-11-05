@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_11_02_125359) do
+ActiveRecord::Schema[7.0].define(version: 2023_11_05_000431) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -55,14 +55,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_02_125359) do
     t.string "trailer_url"
     t.integer "combined_runtime"
     t.text "plot"
-    t.integer "revenue"
-    t.integer "lifetime_gross"
+    t.bigint "revenue"
+    t.bigint "lifetime_gross"
     t.text "tmdb_genres"
     t.text "imdb_genres"
     t.integer "tmdb_runtime"
     t.integer "imdb_runtime"
-    t.integer "production_budget"
-    t.integer "budget"
+    t.bigint "production_budget"
+    t.bigint "budget"
     t.string "review_name"
     t.string "review_body"
     t.float "rating"
@@ -77,8 +77,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_02_125359) do
     t.string "combined_release_date"
     t.text "combined_plot"
     t.jsonb "combined_genres"
-    t.integer "combined_budget"
-    t.integer "combined_revenue"
+    t.bigint "combined_budget"
+    t.bigint "combined_revenue"
   end
 
   create_table "favourites", force: :cascade do |t|

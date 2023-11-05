@@ -42,9 +42,9 @@ class Content < ApplicationRecord
     mappings dynamic: 'false' do
       indexes :title, type: 'text'
       indexes :type, type: 'text'
-      indexes :id, type: 'integer'
       indexes :combined_genres, type: 'text'
       indexes :director, type: 'text'
+      indexes :creator, type: 'text'
       indexes :cast_member_contents, type: 'nested' do
         indexes :cast_member, type: 'nested' do
           indexes :name, type: 'text'
@@ -61,10 +61,10 @@ class Content < ApplicationRecord
   def as_indexed_json(options={})
     {
       title: title,
-      id: id,
       type: type,
       combined_genres: combined_genres,
       director: director,
+      creator: creator,
       cast_member_contents: cast_member_contents.map {
         |cmc| { cast_member: { name: cmc.cast_member.name } }
       },
@@ -127,7 +127,7 @@ class Content < ApplicationRecord
         puts 'Error fetching genres'
       end
 
-      self.combined_genres = merged_genres
+      self.combined_genres = merged_genres if JSON.parse(merged_genres).class.name == 'Array'
     end
 
     save!

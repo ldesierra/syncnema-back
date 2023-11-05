@@ -25,6 +25,7 @@ class FetchTopRatedContent < ApplicationService
       }
 
       remaining = remaining - 20
+      page = page + 1
     end
 
     result.map! do |record|

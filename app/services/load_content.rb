@@ -13,7 +13,9 @@ class LoadContent < ApplicationService
 
       movies = ImdbTmdbExpand.call('movie', movies)
       series = ImdbTmdbExpand.call('tv', series)
-    rescue
+
+      records_saved = []
+    rescue => error
       return puts 'Error fetching movies'
     end
 
@@ -25,8 +27,9 @@ class LoadContent < ApplicationService
 
           Content::FIELD_MAPPINGS.each do |mapping_key, mapping_value|
             value = mapping_value.split('/').inject(movie) do |value, operation|
-              return nil if value.blank?
-              if operation.starts_with?('.')
+              if value.blank?
+                nil
+              elsif operation.starts_with?('.')
                 value.send(operation.gsub('.', ''))
               else
                 value[operation]
@@ -41,8 +44,6 @@ class LoadContent < ApplicationService
 
           record.update!(attributes)
           record.combine_dates
-          record.combine_genres
-          record.combine_plots
           record.combine_fields('imdb_runtime', 'tmdb_runtime', 'combined_runtime')
           record.combine_fields('budget', 'production_budget', 'combined_budget')
           record.combine_fields('lifetime_gross', 'revenue', 'combined_revenue')
@@ -64,21 +65,11 @@ class LoadContent < ApplicationService
             end
           end
 
-          cast_info = WikidataExpand.call(movie['cast']['edges'].map { |s| s['node']['name']['id'] })
-
-          cast_info.each do |cast_member|
-            actor = CastMember.find_or_initialize_by(name: cast_member[:actorName].to_s)
-            actor.update(
-              occupations: cast_member[:occupation].to_s&.split('|'),
-              image: cast_member[:actorImage].to_s,
-              awards: cast_member[:actorAwards].to_s&.split('|')
-            )
-
-            join = CastMemberContent.find_or_initialize_by(content_id: record.id, cast_member_id: actor.id)
-            join.save
-          end
+          records_saved << { id: record.id, data: movie['cast']['edges'] }
         end
       rescue => error
+        binding.pry
+
         puts "Error fetching movie #{movie['name']}"
         next
       end
@@ -108,8 +99,6 @@ class LoadContent < ApplicationService
 
           record.update!(attributes)
           record.combine_dates
-          record.combine_genres
-          record.combine_plots
           record.combine_fields('imdb_runtime', 'tmdb_runtime', 'combined_runtime')
           record.combine_fields('budget', 'production_budget', 'combined_budget')
           record.combine_fields('lifetime_gross', 'revenue', 'combined_revenue')
@@ -131,24 +120,18 @@ class LoadContent < ApplicationService
             end
           end
 
-          cast_info = WikidataExpand.call(serie['cast']['edges'].map { |s| s['node']['name']['id'] })
-
-          cast_info.each do |cast_member|
-            actor = CastMember.find_or_initialize_by(name: cast_member[:actorName].to_s)
-            actor.update(
-              occupations: cast_member[:occupation].to_s&.split('|'),
-              image: cast_member[:actorImage].to_s,
-              awards: cast_member[:actorAwards].to_s&.split('|')
-            )
-
-            join = CastMemberContent.find_or_initialize_by(content_id: record.id, cast_member_id: actor.id)
-            join.save
-          end
+          records_saved << { id: record.id, data: serie['cast']['edges'] }
         end
       rescue => error
+        binding.pry
         puts "Error fetching serie #{serie['name']}"
         next
       end
+    end
+
+    records_saved.each do |saved|
+      ChatgptQueriesJob.perform_async(saved[:id])
+      CastMemberInfoRetrievalJob.perform_async(saved[:id], saved[:data])
     end
   end
 end

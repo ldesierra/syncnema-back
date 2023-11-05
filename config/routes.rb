@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   end
 
   resources :contents, only: [:show, :index]
+  resources :genres, only: [:index]
+  resources :platforms, only: [:index]
 
   root to: 'home#index'
 end
