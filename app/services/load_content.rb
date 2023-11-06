@@ -20,6 +20,7 @@ class LoadContent < ApplicationService
     end
 
     movies.each do |movie|
+      next if movie.blank?
       begin
         ActiveRecord::Base.transaction do
           record = Movie.find_or_initialize_by(title: movie['name'])
@@ -65,7 +66,7 @@ class LoadContent < ApplicationService
             end
           end
 
-          records_saved << { id: record.id, data: movie['cast']['edges'] }
+          records_saved << { id: record.id, data: movie['cast']&.[]('edges') }
         end
       rescue => error
         binding.pry
@@ -76,6 +77,7 @@ class LoadContent < ApplicationService
     end
 
     series.each do |serie|
+      next if serie.blank?
       begin
         ActiveRecord::Base.transaction do
           record = Serie.find_or_initialize_by(title: serie['name'])
@@ -120,7 +122,7 @@ class LoadContent < ApplicationService
             end
           end
 
-          records_saved << { id: record.id, data: serie['cast']['edges'] }
+          records_saved << { id: record.id, data: serie['cast']&.[]('edges') }
         end
       rescue => error
         binding.pry

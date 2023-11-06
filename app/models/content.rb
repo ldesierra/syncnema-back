@@ -121,7 +121,7 @@ class Content < ApplicationRecord
           "Merge this two movie genres lists into one with no repetitions or synonims:
           #{tmdb_genres},
           #{imdb_genres}.
-          Return only the merged list of genres separated by ',' with no brackets before or after."
+          Return only the merged list of genres as a JSON array"
         )
       rescue
         puts 'Error fetching genres'

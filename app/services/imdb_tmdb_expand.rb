@@ -8,6 +8,7 @@ class ImdbTmdbExpand < ApplicationService
     @records.map do |record|
       request = HTTParty.get("https://api.themoviedb.org/3/#{@kind}/#{record[:id]}?language=en-US", headers: { 'Authorization': ENV['TMDB_AUTH_TOKEN'] })
 
+      next if request.body.starts_with?('<!DOCTYPE html')
       data = JSON.parse(request.body)
       record = record.merge(data)
 
@@ -16,6 +17,7 @@ class ImdbTmdbExpand < ApplicationService
 
       request = HTTParty.get("https://search.imdbot.workers.dev/?tt=#{record[:imdb_id]}")
 
+      next if request.body.starts_with?('<!DOCTYPE html')
       data = JSON.parse(request.body)
       ['short', 'top', 'main'].each do |sub_hash|
         record = record.merge(data[sub_hash])
