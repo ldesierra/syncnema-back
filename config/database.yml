@@ -22,7 +22,7 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
   host: node3648-env-8954386.web.elasticloud.uy
-  database: idatos
+  database: basesita
   username: webadmin
   password: LXHche99057
   port: 5432
