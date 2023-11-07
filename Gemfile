@@ -9,6 +9,8 @@ gem "pg", "~> 1.1"
 
 gem "puma", "~> 5.0"
 
+gem 'sidekiq'
+
 gem "httparty"
 
 gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]

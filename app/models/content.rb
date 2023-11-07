@@ -42,9 +42,9 @@ class Content < ApplicationRecord
     mappings dynamic: 'false' do
       indexes :title, type: 'text'
       indexes :type, type: 'text'
-      indexes :id, type: 'integer'
       indexes :combined_genres, type: 'text'
       indexes :director, type: 'text'
+      indexes :creator, type: 'text'
       indexes :cast_member_contents, type: 'nested' do
         indexes :cast_member, type: 'nested' do
           indexes :name, type: 'text'
@@ -60,11 +60,13 @@ class Content < ApplicationRecord
 
   def as_indexed_json(options={})
     {
-      title: title,
       id: id,
+      image_url: image_url,
+      title: title,
       type: type,
       combined_genres: combined_genres,
       director: director,
+      creator: creator,
       cast_member_contents: cast_member_contents.map {
         |cmc| { cast_member: { name: cmc.cast_member.name } }
       },
@@ -100,7 +102,7 @@ class Content < ApplicationRecord
     self.send("#{combined_field}=", send(field_1)) if send(field_2).blank?
     self.send("#{combined_field}=", send(field_2)) if send(field_1).blank?
 
-    if send(field_2).present? && send(field_2).present?
+    if send(field_1).present? && send(field_2).present?
       if send(field_1) > send(field_2)
         self.send("#{combined_field}=", send(field_1) - ((send(field_1) - send(field_2)) / 2))
       else
@@ -121,13 +123,19 @@ class Content < ApplicationRecord
           "Merge this two movie genres lists into one with no repetitions or synonims:
           #{tmdb_genres},
           #{imdb_genres}.
-          Return only the merged list of genres separated by ',' with no brackets before or after."
+          Return only the merged list of genres as a JSON array"
         )
       rescue
         puts 'Error fetching genres'
       end
 
-      self.combined_genres = merged_genres
+      begin
+        self.combined_genres = merged_genres if JSON.parse(merged_genres)&.class&.name == 'Array'
+      rescue
+        puts 'JSON Parse Invalid'
+      end
+
+      self.combined_genres = imdb_genres if combined_genres.blank?
     end
 
     save!
@@ -140,7 +148,7 @@ class Content < ApplicationRecord
     if overview.present? && plot.present?
       begin
         new_plot = ChatGpt.call(
-          "Merge this two movie plots into one with the most important and interesting body:
+          "Merge this two movie plots into one with no extra information:
           Plot 1: #{plot}.
           Plot 2: #{overview}.
           Return only the finished plot with nothing before or after."
@@ -150,6 +158,7 @@ class Content < ApplicationRecord
       end
 
       self.combined_plot = new_plot
+      self.combined_plot = plot if combined_plot.blank?
     end
 
     save!
