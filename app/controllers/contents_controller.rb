@@ -45,7 +45,7 @@ class ContentsController < ApplicationController
 
   def index
     page = params[:page].to_i
-    size = params[:size].to_i
+    size = params[:size].presence&.to_i || 20
 
     should_query = []
     must_query = []
@@ -85,7 +85,7 @@ class ContentsController < ApplicationController
 
     records = Content.search(
       size: size,
-      from: page,
+      from: page * size,
       query: {
         bool: {
           should: should_query,
