@@ -99,6 +99,8 @@ class ContentsController < ApplicationController
       { score: record['_score'], record: record['_source'].slice('id', 'image_url', 'title') }
     end
 
-    render json: { records: serialized_records, total:  }, status: 200
+    render json: {
+      records: serialized_records, total: records.response['hits']['total']['value']
+    }, status: 200
   end
 end
