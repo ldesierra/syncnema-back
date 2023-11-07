@@ -4,7 +4,7 @@ class ChatGpt < ApplicationService
   end
 
   def call
-    model = 'gpt-4'
+    model = 'gpt-4-1106-preview'
     api_url = 'https://api.openai.com/v1/chat/completions'
 
     body = {
