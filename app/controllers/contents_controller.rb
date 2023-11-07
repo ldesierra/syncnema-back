@@ -5,7 +5,10 @@ class ContentsController < ApplicationController
 
     return render json: { error: 'Not found' }, status: 404 if content.blank?
 
-    serialized_content = content.slice(:trailer_url, :combined_plot, :combined_release_date, :content_rating, :combined_runtime, :director, :creator)
+    serialized_content = content.slice(
+      :trailer_url, :combined_plot, :combined_release_date, :content_rating,
+      :combined_runtime, :director, :creator, :title, :combined_genres
+    )
 
     favourite = Favourite.find_by(
       user_id: user&.id, content_id: content.id
@@ -17,13 +20,15 @@ class ContentsController < ApplicationController
     )&.score
     serialized_content = serialized_content.merge!(user_rating: rating)
 
-    cast = CastMemberContent.where(content_id: content.id).map(&:cast_member).pluck(:name)
+    cast = CastMemberContent.where(content_id: content.id).map(&:cast_member).pluck(:name, :image)
+
     streaming_sites = ContentStreamingSite.where(
       content_id: content.id
-    ).map(&:streaming_site).pluck(:name)
+    ).map(&:streaming_site).pluck(:name, :image_url)
 
-    serialized_content.merge!(platforms: streaming_sites)
+    serialized_content.merge!(total_rating: content.total_rating)
     serialized_content.merge!(cast: cast)
+    serialized_content.merge!(platforms: streaming_sites)
 
     render json: serialized_content, status: 200
   end
@@ -84,6 +89,6 @@ class ContentsController < ApplicationController
       { score: record['_score'], record: record['_source'].slice('id', 'image_url', 'title') }
     end
 
-    render json: serialized_records, status: 200
+    render json: { records: serialized_records, total:  }, status: 200
   end
 end

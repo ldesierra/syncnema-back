@@ -130,12 +130,16 @@ class Content < ApplicationRecord
       end
 
       begin
-        self.combined_genres = merged_genres if JSON.parse(merged_genres)&.class&.name == 'Array'
+        if JSON.parse(merged_genres)&.class&.name == 'Array'
+          self.combined_genres = merged_genres
+        else
+          self.combined_genres = imdb_genres
+        end
       rescue
         puts 'JSON Parse Invalid'
-      end
 
-      self.combined_genres = imdb_genres if combined_genres.blank?
+        self.combined_genres = imdb_genres
+      end
     end
 
     save!
@@ -157,10 +161,26 @@ class Content < ApplicationRecord
         puts 'error fetching plot'
       end
 
-      self.combined_plot = new_plot
-      self.combined_plot = plot if combined_plot.blank?
+      if new_plot.blank?
+        self.combined_plot = plot
+      else
+        self.combined_plot = new_plot
+      end
     end
 
     save!
+  end
+
+  def total_rating
+    ratings =  Rating.where(content_id: id)
+    rating_amount = ratings.count
+
+    rating_sum = ratings.map { |rating| rating.score }.inject(0) { |sum, rating| sum += rating }
+
+    if rating_amount != 0
+      rating_sum / rating_amount
+    else
+      0
+    end
   end
 end
