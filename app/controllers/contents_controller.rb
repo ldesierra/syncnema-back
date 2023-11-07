@@ -20,11 +20,21 @@ class ContentsController < ApplicationController
     )&.score
     serialized_content = serialized_content.merge!(user_rating: rating)
 
-    cast = CastMemberContent.where(content_id: content.id).map(&:cast_member).pluck(:name, :image)
+    cast = CastMemberContent.where(content_id: content.id).map(&:cast_member).map do |member|
+      {
+        name: member.name,
+        image: member.image
+      }
+    end
 
-    streaming_sites = ContentStreamingSite.where(
-      content_id: content.id
-    ).map(&:streaming_site).pluck(:name, :image_url)
+    sites = ContentStreamingSite.where(content_id: content.id).map(&:streaming_site)
+
+    streaming_sites = sites.map do |site|
+      {
+        name: site.name,
+        image: site.image_url
+      }
+    end
 
     serialized_content.merge!(total_rating: content.total_rating)
     serialized_content.merge!(cast: cast)
