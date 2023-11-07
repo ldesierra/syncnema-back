@@ -60,6 +60,8 @@ class Content < ApplicationRecord
 
   def as_indexed_json(options={})
     {
+      id: id,
+      image_url: image_url,
       title: title,
       type: type,
       combined_genres: combined_genres,
@@ -127,7 +129,13 @@ class Content < ApplicationRecord
         puts 'Error fetching genres'
       end
 
-      self.combined_genres = merged_genres if JSON.parse(merged_genres).class.name == 'Array'
+      begin
+        self.combined_genres = merged_genres if JSON.parse(merged_genres)&.class&.name == 'Array'
+      rescue
+        puts 'JSON Parse Invalid'
+      end
+
+      self.combined_genres = imdb_genres if combined_genres.blank?
     end
 
     save!
@@ -140,7 +148,7 @@ class Content < ApplicationRecord
     if overview.present? && plot.present?
       begin
         new_plot = ChatGpt.call(
-          "Merge this two movie plots into one with the most important and interesting body:
+          "Merge this two movie plots into one with no extra information:
           Plot 1: #{plot}.
           Plot 2: #{overview}.
           Return only the finished plot with nothing before or after."
@@ -150,6 +158,7 @@ class Content < ApplicationRecord
       end
 
       self.combined_plot = new_plot
+      self.combined_plot = plot if combined_plot.blank?
     end
 
     save!
