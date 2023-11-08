@@ -50,9 +50,9 @@ class ContentsController < ApplicationController
     should_query = []
     must_query = []
 
-    should_query << { match_phrase: { title: params[:query] } } if params[:query].present?
-    should_query << { match_phrase: { director: params[:query] } } if params[:query].present?
-    should_query << { match_phrase: { creator: params[:query] } } if params[:query].present?
+    should_query << { wildcard: { title: "*#{params[:query].underscore}*" } } if params[:query].present?
+    should_query << { wildcard: { director: "*#{params[:query].underscore}*" } } if params[:query].present?
+    should_query << { wildcard: { creator: "*#{params[:query].underscore}*" } } if params[:query].present?
     should_query << { nested: { path: 'cast_member_contents',
                             query: { nested: { path: 'cast_member_contents.cast_member',
                                                 query: {
