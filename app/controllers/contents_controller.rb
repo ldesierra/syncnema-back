@@ -100,7 +100,9 @@ class ContentsController < ApplicationController
     end
 
     render json: {
-      records: serialized_records, total: records.response['hits']['total']['value']
+      records: serialized_records,
+      total: records.response['hits']['total']['value'],
+      page: page
     }, status: 200
   end
 end
