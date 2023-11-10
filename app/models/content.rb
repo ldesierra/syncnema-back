@@ -152,20 +152,18 @@ class Content < ApplicationRecord
     if overview.present? && plot.present?
       begin
         new_plot = ChatGpt.call(
-          "Merge this two movie plots into one with no extra information:
-          Plot 1: #{plot}.
-          Plot 2: #{overview}.
-          Return only the finished plot with nothing before or after."
+          "You are a very enthusiastic cinephile who loves to combine movie plots from different sites. Given the following movie plots, create another one that merges all the important information. Try to not make it longer than 100 words.
+          Plot 1: #{overview}
+          Plot 2: #{plot}
+          Combined plot:"
         )
+
+        self.combined_plot = new_plot
       rescue
-        puts 'error fetching plot'
+        puts 'ERROR FETCHING PLOT, OUTPUT WAS'
       end
 
-      if new_plot.blank?
-        self.combined_plot = plot
-      else
-        self.combined_plot = new_plot
-      end
+      self.combined_plot = nil if new_plot.blank?
     end
 
     save!
