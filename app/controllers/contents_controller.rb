@@ -6,8 +6,9 @@ class ContentsController < ApplicationController
     return render json: { error: 'Not found' }, status: 404 if content.blank?
 
     serialized_content = content.slice(
-      :trailer_url, :combined_plot, :combined_release_date, :content_rating,
-      :combined_runtime, :director, :creator, :title, :combined_genres, :rating
+      :trailer_url, :combined_plot, :image_url, :combined_release_date,
+      :content_rating, :combined_runtime, :director, :creator, :title, :combined_genres,
+      :rating, :combined_budget, :id
     )
 
     favourite = Favourite.find_by(
@@ -20,7 +21,7 @@ class ContentsController < ApplicationController
     )&.score
     serialized_content = serialized_content.merge!(user_rating: rating)
 
-    cast = CastMemberContent.where(content_id: content.id).map(&:cast_member).map do |member|
+    cast = CastMemberContent.where(content_id: content.id).map(&:cast_member) .map do |member|
       {
         name: member.name,
         image: member.image
@@ -28,6 +29,7 @@ class ContentsController < ApplicationController
     end
 
     sites = ContentStreamingSite.where(content_id: content.id).map(&:streaming_site)
+    sites = sites.group_by(&:name).values.map(&:first)
 
     streaming_sites = sites.map do |site|
       {
