@@ -1,7 +1,7 @@
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     origins 'https://syncnema.vercel.app',
-            'https://syncnema-git-sa-27-flocarle.vercel.app/',
+            'https://syncnema-git-sa-27-flocarle.vercel.app',
             'http://localhost:3000'
 
     resource '*',
