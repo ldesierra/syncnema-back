@@ -11,8 +11,15 @@ class Recommender < ApplicationService
       { user_id: rating.user_id, item_id: rating.content_id, rating: rating.score }
     end
 
-    recommender.fit(data)
+    result = nil
 
-    return recommender.user_recs(@user.id).sort_by { |s| - s[:score] }
+    begin
+      recommender.fit(data)
+      result = recommender.user_recs(@user.id).sort_by { |s| - s[:score] }
+    rescue
+      puts 'Error recommending'
+    end
+
+    return result.presence
   end
 end
