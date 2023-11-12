@@ -46,6 +46,22 @@ class ContentsController < ApplicationController
   end
 
   def index
+    genres = if params[:genres].blank?
+               nil
+             elsif params[:genres].class.name == 'Array'
+               params[:genres]
+             else
+               JSON.parse(params[:genres])
+             end
+
+    platforms = if params[:platforms].blank?
+              nil
+            elsif params[:platforms].class.name == 'Array'
+              params[:platforms]
+            else
+              JSON.parse(params[:platforms])
+            end
+
     page = params[:page].to_i
     size = params[:size].presence&.to_i || 20
 
@@ -68,14 +84,14 @@ class ContentsController < ApplicationController
               } if params[:query].present?
 
     must_query << { match_phrase: { type: params[:type] } } if params[:type].present?
-    must_query << { bool: { must: { terms: { combined_genres: params[:genres].map { |genre| genre.downcase } } } } } if params[:genres].present?
+    must_query << { bool: { must: { terms: { combined_genres: genres.map { |genre| genre.downcase } } } } } if genres.present?
     must_query << { nested: { path: 'content_streaming_sites',
                               query: { nested: { path: 'content_streaming_sites.streaming_site',
                                                   query: {
                                                     bool: {
                                                       must: {
                                                         terms: {
-                                                          'content_streaming_sites.streaming_site.name': params[:platforms].map { |genre| genre.downcase }
+                                                          'content_streaming_sites.streaming_site.name': platforms.map { |genre| genre.downcase }
                                                         }
                                                       }
                                                     }
@@ -83,7 +99,7 @@ class ContentsController < ApplicationController
                                               }
                                     }
                             }
-                  } if params[:platforms].present?
+                  } if platforms.present?
 
     records = Content.search(
       size: size,
