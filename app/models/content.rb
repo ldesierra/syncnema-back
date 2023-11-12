@@ -84,15 +84,7 @@ class Content < ApplicationRecord
       imdb_date = release_date_imdb.to_date
       tmdb_date = release_date_tmdb.to_date
 
-      if imdb_date > tmdb_date
-        difference = imdb_date - tmdb_date
-        midpoint_difference = difference / 2
-        self.combined_release_date = imdb_date - midpoint_difference.days
-      else
-        difference = tmdb_date - imdb_date
-        midpoint_difference = difference / 2
-        self.combined_release_date = tmdb_date - midpoint_difference.days
-      end
+      self.combined_release_date = imdb_date > tmdb_date ? imdb_date : tmdb_date
     end
 
     save!

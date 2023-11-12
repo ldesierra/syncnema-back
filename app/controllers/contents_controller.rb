@@ -8,7 +8,7 @@ class ContentsController < ApplicationController
     serialized_content = content.slice(
       :trailer_url, :combined_plot, :image_url, :combined_release_date,
       :content_rating, :combined_runtime, :director, :creator, :title, :combined_genres,
-      :rating, :combined_budget, :id
+      :rating, :combined_budget, :combined_revenue, :id
     )
 
     favourite = Favourite.find_by(
@@ -24,6 +24,7 @@ class ContentsController < ApplicationController
     cast = CastMemberContent.where(content_id: content.id).map(&:cast_member) .map do |member|
       {
         name: member.name,
+        awards: member.awards,
         image: member.image
       }
     end
