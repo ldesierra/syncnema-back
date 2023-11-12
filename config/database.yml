@@ -23,7 +23,11 @@ default: &default
 
 development:
   <<: *default
-  database: syncnema_back_development
+  host: node3648-env-8954386.web.elasticloud.uy
+  database: idatos
+  username: webadmin
+  password: LXHche99057
+  port: 5432
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
