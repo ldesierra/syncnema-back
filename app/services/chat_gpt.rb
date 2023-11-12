@@ -4,7 +4,7 @@ class ChatGpt < ApplicationService
   end
 
   def call
-    model = 'gpt-3.5-turbo'
+    model = 'gpt-4-1106-preview'
     api_url = 'https://api.openai.com/v1/chat/completions'
 
     body = {
@@ -15,7 +15,7 @@ class ChatGpt < ApplicationService
       api_url,
       body: body.to_json,
       headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{ENV['GPT_API_KEY']}"},
-      timeout: 30
+      timeout: 60
     )
     raise response['error']['message'] unless response.code == 200
 

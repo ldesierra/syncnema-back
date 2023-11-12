@@ -57,7 +57,6 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: syncnema_back_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -81,6 +80,8 @@ test:
 #
 production:
   <<: *default
-  database: syncnema_back_production
-  username: syncnema_back
-  password: <%= ENV["SYNCNEMA_BACK_DATABASE_PASSWORD"] %>
+  host: node3648-env-8954386.web.elasticloud.uy
+  database: idatos
+  username: webadmin
+  password: LXHche99057
+  port: 5432

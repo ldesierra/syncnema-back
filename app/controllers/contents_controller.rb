@@ -5,7 +5,11 @@ class ContentsController < ApplicationController
 
     return render json: { error: 'Not found' }, status: 404 if content.blank?
 
-    serialized_content = content.slice(:trailer_url, :combined_plot, :combined_release_date, :content_rating, :combined_runtime, :director, :creator)
+    serialized_content = content.slice(
+      :trailer_url, :combined_plot, :image_url, :combined_release_date,
+      :content_rating, :combined_runtime, :director, :creator, :title, :combined_genres,
+      :rating, :combined_budget, :id
+    )
 
     favourite = Favourite.find_by(
       user_id: user&.id, content_id: content.id
@@ -17,27 +21,40 @@ class ContentsController < ApplicationController
     )&.score
     serialized_content = serialized_content.merge!(user_rating: rating)
 
-    cast = CastMemberContent.where(content_id: content.id).map(&:cast_member).pluck(:name)
-    streaming_sites = ContentStreamingSite.where(
-      content_id: content.id
-    ).map(&:streaming_site).pluck(:name)
+    cast = CastMemberContent.where(content_id: content.id).map(&:cast_member) .map do |member|
+      {
+        name: member.name,
+        image: member.image
+      }
+    end
 
-    serialized_content.merge!(platforms: streaming_sites)
+    sites = ContentStreamingSite.where(content_id: content.id).map(&:streaming_site)
+    sites = sites.group_by(&:name).values.map(&:first)
+
+    streaming_sites = sites.map do |site|
+      {
+        name: site.name,
+        image: site.image_url
+      }
+    end
+
+    serialized_content.merge!(total_rating: content.total_rating)
     serialized_content.merge!(cast: cast)
+    serialized_content.merge!(platforms: streaming_sites)
 
     render json: serialized_content, status: 200
   end
 
   def index
     page = params[:page].to_i
-    size = params[:size].to_i
+    size = params[:size].presence&.to_i || 20
 
     should_query = []
     must_query = []
 
-    should_query << { match_phrase: { title: params[:query] } } if params[:query].present?
-    should_query << { match_phrase: { director: params[:query] } } if params[:query].present?
-    should_query << { match_phrase: { creator: params[:query] } } if params[:query].present?
+    should_query << { wildcard: { title: "*#{params[:query].underscore}*" } } if params[:query].present?
+    should_query << { wildcard: { director: "*#{params[:query].underscore}*" } } if params[:query].present?
+    should_query << { wildcard: { creator: "*#{params[:query].underscore}*" } } if params[:query].present?
     should_query << { nested: { path: 'cast_member_contents',
                             query: { nested: { path: 'cast_member_contents.cast_member',
                                                 query: {
@@ -70,7 +87,7 @@ class ContentsController < ApplicationController
 
     records = Content.search(
       size: size,
-      from: page,
+      from: page * size,
       query: {
         bool: {
           should: should_query,
@@ -84,6 +101,10 @@ class ContentsController < ApplicationController
       { score: record['_score'], record: record['_source'].slice('id', 'image_url', 'title') }
     end
 
-    render json: serialized_records, status: 200
+    render json: {
+      records: serialized_records,
+      total: records.response['hits']['total']['value'],
+      page: page
+    }, status: 200
   end
 end

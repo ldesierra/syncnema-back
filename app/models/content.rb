@@ -130,12 +130,16 @@ class Content < ApplicationRecord
       end
 
       begin
-        self.combined_genres = merged_genres if JSON.parse(merged_genres)&.class&.name == 'Array'
+        if JSON.parse(merged_genres)&.class&.name == 'Array'
+          self.combined_genres = merged_genres
+        else
+          self.combined_genres = imdb_genres
+        end
       rescue
         puts 'JSON Parse Invalid'
-      end
 
-      self.combined_genres = imdb_genres if combined_genres.blank?
+        self.combined_genres = imdb_genres
+      end
     end
 
     save!
@@ -148,19 +152,33 @@ class Content < ApplicationRecord
     if overview.present? && plot.present?
       begin
         new_plot = ChatGpt.call(
-          "Merge this two movie plots into one with no extra information:
-          Plot 1: #{plot}.
-          Plot 2: #{overview}.
-          Return only the finished plot with nothing before or after."
+          "You are a very enthusiastic cinephile who loves to combine movie plots from different sites. Given the following movie plots, create another one that merges all the important information. Try to not make it longer than 100 words.
+          Plot 1: #{overview}
+          Plot 2: #{plot}
+          Combined plot:"
         )
+
+        self.combined_plot = new_plot
       rescue
-        puts 'error fetching plot'
+        puts 'ERROR FETCHING PLOT, OUTPUT WAS'
       end
 
-      self.combined_plot = new_plot
-      self.combined_plot = plot if combined_plot.blank?
+      self.combined_plot = nil if new_plot.blank?
     end
 
     save!
+  end
+
+  def total_rating
+    ratings =  Rating.where(content_id: id)
+    rating_amount = ratings.count
+
+    rating_sum = ratings.map { |rating| rating.score }.inject(0) { |sum, rating| sum += rating }
+
+    if rating_amount != 0
+      rating_sum / rating_amount
+    else
+      0
+    end
   end
 end
