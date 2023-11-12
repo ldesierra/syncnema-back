@@ -79,8 +79,8 @@ GEM
     debug (1.8.0)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
-    disco (0.4.0)
-      libmf (>= 0.2)
+    disco (0.3.2)
+      libmf (>= 0.2.0)
       numo-narray
     elasticsearch (7.13.3)
       elasticsearch-api (= 7.13.3)
@@ -135,7 +135,7 @@ GEM
     irb (1.9.0)
       rdoc
       reline (>= 0.3.8)
-    libmf (0.3.0)
+    libmf (0.2.6)
       ffi
     link_header (0.0.8)
     loofah (2.21.4)
@@ -253,12 +253,13 @@ DEPENDENCIES
   bootsnap
   byebug
   debug
-  disco
+  disco (~> 0.3.2)
   elasticsearch (< 7.14)
   elasticsearch-model (~> 7.2.0)
   elasticsearch-rails (~> 7.2.0)
   figaro
   httparty
+  libmf (~> 0.2.0)
   pg (~> 1.1)
   pry
   pry-rails

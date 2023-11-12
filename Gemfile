@@ -22,7 +22,8 @@ gem 'figaro'
 gem 'elasticsearch-model', '~> 7.2.0'
 gem 'elasticsearch-rails', '~> 7.2.0'
 gem 'elasticsearch', '< 7.14'
-gem 'disco'
+gem 'disco', '~> 0.3.2'
+gem 'libmf', '~> 0.2.0'
 
 gem "rack-cors"
 
