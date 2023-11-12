@@ -84,16 +84,15 @@ class ContentsController < ApplicationController
               } if params[:query].present?
 
     must_query << { match_phrase: { type: params[:type] } } if params[:type].present?
-    must_query << { bool: { must: { terms: { combined_genres: genres.map { |genre| genre.downcase } } } } } if genres.present?
+    must_query << { query_string: { query: genres.join(' OR'),
+                                    default_field: 'combined_genres' }
+                  } if genres.present?
     must_query << { nested: { path: 'content_streaming_sites',
                               query: { nested: { path: 'content_streaming_sites.streaming_site',
                                                   query: {
-                                                    bool: {
-                                                      must: {
-                                                        terms: {
-                                                          'content_streaming_sites.streaming_site.name': platforms.map { |genre| genre.downcase }
-                                                        }
-                                                      }
+                                                    query_string: {
+                                                      query: platforms.join(' OR '),
+                                                      default_field: "content_streaming_sites.streaming_site.name"
                                                     }
                                                   }
                                               }
