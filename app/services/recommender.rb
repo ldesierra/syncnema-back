@@ -63,7 +63,14 @@ class Recommender < ApplicationService
               result + Content.where.not(id: result.pluck(:id)).first(20 - result.size)
              end
 
-    result.pluck(:id, :title, :image_url, :type)
+    result.map do |record|
+      {
+        id: record.id,
+        title: record.title,
+        image_url: record.image_url,
+        type: record.type
+      }
+    end
   end
 
   def call
