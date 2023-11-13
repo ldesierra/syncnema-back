@@ -8,7 +8,7 @@ class ContentsController < ApplicationController
     serialized_content = content.slice(
       :trailer_url, :combined_plot, :image_url, :combined_release_date,
       :content_rating, :combined_runtime, :director, :creator, :title, :combined_genres,
-      :rating, :combined_budget, :combined_revenue, :id
+      :rating, :combined_budget, :combined_revenue, :id, :trivia, :quotes
     )
 
     favourite = Favourite.find_by(
