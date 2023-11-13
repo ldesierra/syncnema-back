@@ -79,7 +79,7 @@ GEM
     debug (1.8.0)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
-    disco (0.3.2)
+    disco (0.1.3)
       libmf (>= 0.2.0)
       numo-narray
     elasticsearch (7.13.3)
@@ -247,19 +247,18 @@ GEM
 
 PLATFORMS
   arm64-darwin-20
-  arm64-darwin-23
 
 DEPENDENCIES
   bootsnap
   byebug
   debug
-  disco (~> 0.3.2)
+  disco (< 0.2.0)
   elasticsearch (< 7.14)
   elasticsearch-model (~> 7.2.0)
   elasticsearch-rails (~> 7.2.0)
   figaro
   httparty
-  libmf (~> 0.2.0)
+  libmf (= 0.2.6)
   pg (~> 1.1)
   pry
   pry-rails
