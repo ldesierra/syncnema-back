@@ -9,7 +9,10 @@ Rails.application.routes.draw do
     delete :destroy, on: :collection
   end
 
-  resources :contents, only: [:show, :index]
+  resources :contents, only: [:show, :index] do
+    get :provenance, on: :collection
+  end
+
   resources :genres, only: [:index]
   resources :platforms, only: [:index]
 

@@ -123,4 +123,10 @@ class ContentsController < ApplicationController
       page: page
     }, status: 200
   end
+
+  def provenance
+    xml_content = File.read(Rails.root.join('app', 'views', 'provenance.xml'))
+
+    render xml: xml_content, status: 200
+  end
 end

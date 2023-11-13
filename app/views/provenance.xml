@@ -1,0 +1,382 @@
+<OPMGraph xmlns="http://openprovenance.org/model/opmx#">
+  <agents>
+    <agent id="imdb">
+      <label>IMDb</label>
+    </agent>
+
+    <agent id="tmdb">
+      <label>TMDb</label>
+    </agent>
+
+    <agent id="wikidata">
+      <label>Wikidata</label>
+    </agent>
+
+    <agent id="gpt4">
+      <label>GPT-4 Model</label>
+    </agent>
+  </agents>
+
+  <artifacts>
+    <artifact id="trailer_url">
+      <label>Trailer URL from IMDb</label>
+    </artifact>
+
+    <artifact id="image_url">
+      <label>Image URL from IMDb</label>
+    </artifact>
+
+    <artifact id="plot">
+      <label>IMDb Plot</label>
+    </artifact>
+
+    <artifact id="overview">
+      <label>TMDb Plot</label>
+    </artifact>
+
+    <artifact id="combined_plot">
+      <label>Combined Plot</label>
+    </artifact>
+
+    <artifact id="release_date_imdb">
+      <label>Release date from IMDb</label>
+    </artifact>
+
+    <artifact id="release_date_tmdb">
+      <label>Release date from TMDb</label>
+    </artifact>
+
+    <artifact id="combined_release_date">
+      <label>Combined Release Date</label>
+    </artifact>
+
+    <artifact id="content_rating">
+      <label>Content rating from IMDb</label>
+    </artifact>
+
+    <artifact id="imdb_runtime">
+      <label>Runtime from IMDb</label>
+    </artifact>
+
+    <artifact id="tmdb_runtime">
+      <label>Runtime from TMDb</label>
+    </artifact>
+
+    <artifact id="combined_runtime">
+      <label>Combined Runtime</label>
+    </artifact>
+
+    <artifact id="director">
+      <label>Director from IMDb</label>
+    </artifact>
+
+    <artifact id="creator">
+      <label>Creator from IMDb</label>
+    </artifact>
+
+    <artifact id="title">
+      <label>Content title from IMDb</label>
+    </artifact>
+
+    <artifact id="imdb_genres">
+      <label>IMDb Genres</label>
+    </artifact>
+
+    <artifact id="tmdb_genres">
+      <label>TMDb Genres</label>
+    </artifact>
+
+    <artifact id="combined_genres">
+      <label>Combined Genres</label>
+    </artifact>
+
+    <artifact id="rating">
+      <label>Rating from IMDb</label>
+    </artifact>
+
+    <artifact id="budget">
+      <label>Budget from TMDb</label>
+    </artifact>
+
+    <artifact id="production_budget">
+      <label>Production Budget from IMDb</label>
+    </artifact>
+
+    <artifact id="combined_budget">
+      <label>Combined Budget</label>
+    </artifact>
+
+    <artifact id="revenue">
+      <label>Revenue from TMDb</label>
+    </artifact>
+
+    <artifact id="lifetime_gross">
+      <label>Lifetime Gross from IMDb</label>
+    </artifact>
+
+    <artifact id="combined_revenue">
+      <label>Combined Revenue</label>
+    </artifact>
+
+    <artifact id="cast">
+      <label>Cast from Wikidata</label>
+    </artifact>
+
+    <artifact id="platforms">
+      <label>Platforms from TMDb</label>
+    </artifact>
+
+    <artifact id="trivia">
+      <label>Trivia from IMDb</label>
+    </artifact>
+
+    <artifact id="quotes">
+      <label>Quotes from IMDb</label>
+    </artifact>
+
+  </artifacts>
+
+  <processes>
+    <process id="combine_plot_process">
+      <label>Combine Plot</label>
+    </process>
+
+    <process id="combine_genres_process">
+      <label>Combine Genres</label>
+    </process>
+
+    <process id="combine_release_date_process">
+      <label>Combine Release Date</label>
+    </process>
+
+    <process id="combine_runtime_process">
+      <label>Combine Runtime</label>
+    </process>
+
+    <process id="combine_budget_process">
+      <label>Combine Budget</label>
+    </process>
+
+    <process id="combine_revenue_process">
+      <label>Combine Revenue</label>
+    </process>
+
+    <process id="fetch_cast_members">
+      <label>Fetch Cast Members</label>
+    </process>
+
+    <process id="fetch_imdb">
+      <label>Fetch from IMDb</label>
+    </process>
+
+    <process id="fetch_tmdb">
+      <label>Fetch from TMDb</label>
+    </process>
+
+  </processes>
+
+  <dependencies>
+    <!-- Plot -->
+    <used>
+      <cause ref="plot" />
+      <effect ref="combine_plot_process" />
+    </used>
+    <used>
+      <cause ref="overview" />
+      <effect ref="combine_plot_process" />
+    </used>
+    <wasGeneratedBy>
+      <effect ref="combined_plot" />
+      <cause ref="combine_plot_process" />
+    </wasGeneratedBy>
+    <wasControlledBy>
+      <effect ref="combined_plot_process" />
+      <cause ref="gpt4" />
+    </wasControlledBy>
+
+    <!-- Genres -->
+    <used>
+      <cause ref="imdb_genres" />
+      <effect ref="combine_genres_process" />
+    </used>
+    <used>
+      <cause ref="tmdb_genres" />
+      <effect ref="combine_genres_process" />
+    </used>
+    <wasGeneratedBy>
+      <effect ref="combined_genres" />
+      <cause ref="combine_genres_process" />
+    </wasGeneratedBy>
+    <wasControlledBy>
+      <effect ref="combine_genres_process" />
+      <cause ref="gpt4" />
+    </wasControlledBy>
+
+    <!-- Release date -->
+    <used>
+      <cause ref="release_date_imdb" />
+      <effect ref="combine_release_date_process" />
+    </used>
+    <used>
+      <cause ref="release_date_tmdb" />
+      <effect ref="combine_release_date_process" />
+    </used>
+    <wasGeneratedBy>
+      <effect ref="combined_release_date" />
+      <cause ref="combine_release_date_process" />
+    </wasGeneratedBy>
+
+    <!-- Runtime -->
+    <used>
+      <cause ref="imdb_runtime" />
+      <effect ref="combine_runtime_process" />
+    </used>
+    <used>
+      <cause ref="tmdb_runtime" />
+      <effect ref="combine_runtime_process" />
+    </used>
+    <wasGeneratedBy>
+      <effect ref="combined_runtime" />
+      <cause ref="combine_runtime_process" />
+    </wasGeneratedBy>
+
+    <!-- Budget -->
+    <used>
+      <cause ref="production_budget" />
+      <effect ref="combine_budget_process" />
+    </used>
+    <used>
+      <cause ref="budget" />
+      <effect ref="combine_budget_process" />
+    </used>
+    <wasGeneratedBy>
+      <effect ref="combined_budget" />
+      <cause ref="combine_budget_process" />
+    </wasGeneratedBy>
+
+    <!-- Revenue -->
+    <used>
+      <cause ref="revenue" />
+      <effect ref="combine_revenue_process" />
+    </used>
+    <used>
+      <cause ref="lifetime_gross" />
+      <effect ref="combine_revenue_process" />
+    </used>
+    <wasGeneratedBy>
+      <effect ref="combined_revenue" />
+      <cause ref="combine_revenue_process" />
+    </wasGeneratedBy>
+
+    <!-- Cast members -->
+    <wasGeneratedBy>
+      <effect ref="cast" />
+      <cause ref="fetch_cast_members" />
+    </wasGeneratedBy>
+    <wasControlledBy>
+      <effect ref="fetch_cast_members" />
+      <cause ref="wikidata" />
+    </wasControlledBy>
+
+    <!-- Data from IMDb -->
+    <wasGeneratedBy>
+      <effect ref="trailer_url" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="image_url" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="plot" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="release_date_imdb" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="content_rating" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="imdb_runtime" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="director" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="creator" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="title" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="imdb_genres" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="rating" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="production_budget" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="lifetime_gross" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="trivia" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="quotes" />
+      <cause ref="fetch_imdb" />
+    </wasGeneratedBy>
+    <wasControlledBy>
+      <effect ref="fetch_imdb" />
+      <cause ref="imdb" />
+    </wasControlledBy>
+
+    <!-- Data from TMDb -->
+    <wasGeneratedBy>
+      <effect ref="overview" />
+      <cause ref="fetch_tmdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="release_date_tmdb" />
+      <cause ref="fetch_tmdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="tmdb_runtime" />
+      <cause ref="fetch_tmdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="tmdb_genres" />
+      <cause ref="fetch_tmdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="budget" />
+      <cause ref="fetch_tmdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="revenue" />
+      <cause ref="fetch_tmdb" />
+    </wasGeneratedBy>
+    <wasGeneratedBy>
+      <effect ref="platforms" />
+      <cause ref="fetch_tmdb" />
+    </wasGeneratedBy>
+    <wasControlledBy>
+      <effect ref="fetch_tmdb" />
+      <cause ref="tmdb" />
+    </wasControlledBy>
+  </dependencies>
+
+</OPMGraph>
