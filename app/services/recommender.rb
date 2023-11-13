@@ -3,19 +3,15 @@ class Recommender < ApplicationService
     @user = user
   end
 
-  def call
-    recommender_for_production
-  end
-
   def metric(first, second)
     highest = first > second ? first : second
 
     ((((first + second) / (highest * 2).to_f) - 0.5) * 2)
   end
 
-  def recommender_for_production
+  def call
     user_ratings = @user.ratings
-    rating_hash = user_ratings.map { |rated| [rated.content_id, rated.score] }.to_h
+    rating_hash = user_ratings.to_h { |rated| [rated.content_id, rated.score] }
 
     rated_content_id = user_ratings.pluck(:content_id)
 
@@ -29,7 +25,7 @@ class Recommender < ApplicationService
         { rating_id: rating.id, score: metric(rating.score, rating_hash[rating.content_id]) }
       end
 
-      group = { group.first => group_value }
+      { group.first => group_value }
     end
 
     grouped_with_total = grouped_ratings.map do |group|
@@ -40,14 +36,13 @@ class Recommender < ApplicationService
     similar_users = sorted_by_similarity.map{ |s| [s.first.first, s.values.second] }
     final_rating_ids = []
 
-    similar_users.each do |similar_user_id, score|
+    final_rating_ids = similar_users.flat_map do |similar_user_id, score|
       recommended = Rating.where.not(content_id: rated_content_id)
                           .where(user_id: similar_user_id)
                           .positive
                           .pluck(:id, :content_id, :score)
 
       recommended.map! { |rating| [rating.first, rating.second, rating.third + score] }
-      final_rating_ids += recommended
     end
 
     final_rating_ids = final_rating_ids.sort_by { |rating| -rating.third }
@@ -57,25 +52,32 @@ class Recommender < ApplicationService
     recommended_content = Rating.find(final_rating_ids.map(&:first))
                                 .pluck(:content_id)
 
-    Content.where(id: recommended_content)
+    result = Content.where(id: recommended_content)
+    result = if result.size == 20
+               result
+             else
+              result + Content.where.not(id: result.pluck(:id)).first(20 - result.size)
+             end
+
+    result.pluck(:id, :title, :image_url, :type)
   end
 
-  def recommender_for_development
-    recommender = Disco::Recommender.new
+  # def recommender_for_development
+  #   recommender = Disco::Recommender.new
 
-    data = Rating.all.map do |rating|
-      { user_id: rating.user_id, item_id: rating.content_id, rating: rating.score }
-    end
+  #   data = Rating.all.map do |rating|
+  #     { user_id: rating.user_id, item_id: rating.content_id, rating: rating.score }
+  #   end
 
-    result = nil
+  #   result = nil
 
-    begin
-      recommender.fit(data)
-      result = recommender.user_recs(@user.id, count: 20).sort_by { |s| - s[:score] }
-    rescue
-      puts 'Error recommending'
-    end
+  #   begin
+  #     recommender.fit(data)
+  #     result = recommender.user_recs(@user.id, count: 20).sort_by { |s| - s[:score] }
+  #   rescue
+  #     puts 'Error recommending'
+  #   end
 
-    return result.presence
-  end
+  #   return result.presence
+  # end
 end
