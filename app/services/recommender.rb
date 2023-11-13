@@ -4,46 +4,60 @@ class Recommender < ApplicationService
   end
 
   def call
-    send("recommender_for_#{Rails.env}")
+    recommender_for_production
+  end
+
+  def metric(first, second)
+    highest = first > second ? first : second
+
+    ((((first + second) / (highest * 2).to_f) - 0.5) * 2)
   end
 
   def recommender_for_production
-    positive_user_ratings = @user.ratings.positive.order(score: :desc)
-    negative_user_ratings = @user.ratings.negative.order(score: :asc)
+    user_ratings = @user.ratings
+    rating_hash = user_ratings.map { |rated| [rated.content_id, rated.score] }.to_h
 
-    rated_content_id = (positive_user_ratings + negative_user_ratings).pluck(:content_id)
+    rated_content_id = user_ratings.pluck(:content_id)
 
-    positive_ratings_to_positive_movies = Rating.where.not(user: @user).where(
-      content_id: positive_user_ratings.pluck(:content_id)
-    )
-    negative_ratings_to_negative_movies = Rating.where.not(user: @user).where(
-      content_id: negative_user_ratings.pluck(:content_id)
+    ratings_to_rated_movies = Rating.where.not(user: @user).where(
+      content_id: rated_content_id
     )
 
-    matching_ratings = (negative_ratings_to_negative_movies + positive_ratings_to_positive_movies)
-    grouped_ratings = matching_ratings.group_by(&:user_id)
-                                      .sort_by { |user_id, ratings| -ratings.length }
+    grouped_ratings = ratings_to_rated_movies.group_by(&:user_id)
+    grouped_ratings = grouped_ratings.map do |group|
+      group_value = group.second.map do |rating|
+        { rating_id: rating.id, score: metric(rating.score, rating_hash[rating.content_id]) }
+      end
 
-    similar_user_ids = grouped_ratings.map{ |s| s.first }
-
-    final_rating_ids = []
-
-    similar_user_ids.each do |similar_user_id|
-      rating_ids = Rating.where.not(content_id: rated_content_id)
-                         .where(user_id: similar_user_id)
-                         .positive
-                         .pluck(:id, :content_id)
-
-      final_rating_ids += rating_ids
+      group = { group.first => group_value }
     end
 
-    final_rating_ids = final_rating_ids.uniq { |rating| rating.second }.first(20)
+    grouped_with_total = grouped_ratings.map do |group|
+      group.merge!(total: group.values.first.inject(0) { |sum, rating| sum + rating[:score] })
+    end
+    sorted_by_similarity = grouped_ratings.sort_by { |group| -group[:total] }
+
+    similar_users = sorted_by_similarity.map{ |s| [s.first.first, s.values.second] }
+    final_rating_ids = []
+
+    similar_users.each do |similar_user_id, score|
+      recommended = Rating.where.not(content_id: rated_content_id)
+                          .where(user_id: similar_user_id)
+                          .positive
+                          .pluck(:id, :content_id, :score)
+
+      recommended.map! { |rating| [rating.first, rating.second, rating.third + score] }
+      final_rating_ids += recommended
+    end
+
+    final_rating_ids = final_rating_ids.sort_by { |rating| -rating.third }
+                                       .uniq { |rating| rating.second }
+                                       .first(20)
 
     recommended_content = Rating.find(final_rating_ids.map(&:first))
-                                .sort_by { |rating| -rating.score }
                                 .pluck(:content_id)
 
-    Content.where(id: recommended_content).first(20)
+    Content.where(id: recommended_content)
   end
 
   def recommender_for_development
@@ -57,7 +71,7 @@ class Recommender < ApplicationService
 
     begin
       recommender.fit(data)
-      result = recommender.user_recs(@user.id).sort_by { |s| - s[:score] }
+      result = recommender.user_recs(@user.id, count: 20).sort_by { |s| - s[:score] }
     rescue
       puts 'Error recommending'
     end
