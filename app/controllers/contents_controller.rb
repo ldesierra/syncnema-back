@@ -69,9 +69,9 @@ class ContentsController < ApplicationController
     should_query = []
     must_query = []
 
-    should_query << { query_string: { query: params[:query], default_field: 'title', default_operator: 'AND' } } if params[:query].present?
-    should_query << { query_string: { query: params[:query], default_field: 'director', default_operator: 'AND' } } if params[:query].present?
-    should_query << { query_string: { query: params[:query], default_field: 'creator', default_operator: 'AND' } } if params[:query].present?
+    should_query << { query_string: { query: "*#{params[:query].gsub(' ', '* *')}*", default_field: 'title', default_operator: 'AND' } } if params[:query].present?
+    should_query << { query_string: { query: "*#{params[:query].gsub(' ', '* *')}*", default_field: 'director', default_operator: 'AND' } } if params[:query].present?
+    should_query << { query_string: { query: "*#{params[:query].gsub(' ', '* *')}*", default_field: 'creator', default_operator: 'AND' } } if params[:query].present?
     should_query << { nested: { path: 'cast_member_contents',
                             query: { nested: { path: 'cast_member_contents.cast_member',
                                                 query: {
