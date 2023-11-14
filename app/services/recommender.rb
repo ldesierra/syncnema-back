@@ -13,6 +13,14 @@ class Recommender < ApplicationService
     ((((first + second) / (highest * 2).to_f) - 0.5) * 2)
   end
 
+  def call
+    sorted_by_similarity = get_sorted_by_similarity
+
+    final_rating_ids = final_rating_ids(sorted_by_similarity)
+
+    content_from_rating_ids(final_rating_ids)
+  end
+
   def get_sorted_by_similarity
     ratings_to_rated_movies = Rating.where.not(user: @user).where(
       content_id: @rated_content_id
@@ -72,31 +80,4 @@ class Recommender < ApplicationService
       }
     end
   end
-
-  def call
-    sorted_by_similarity = get_sorted_by_similarity
-
-    final_rating_ids = final_rating_ids(sorted_by_similarity)
-
-    content_from_rating_ids(final_rating_ids)
-  end
-
-  # def recommender_for_development
-  #   recommender = Disco::Recommender.new
-
-  #   data = Rating.all.map do |rating|
-  #     { user_id: rating.user_id, item_id: rating.content_id, rating: rating.score }
-  #   end
-
-  #   result = nil
-
-  #   begin
-  #     recommender.fit(data)
-  #     result = recommender.user_recs(@user.id, count: 20).sort_by { |s| - s[:score] }
-  #   rescue
-  #     puts 'Error recommending'
-  #   end
-
-  #   return result.presence
-  # end
 end
