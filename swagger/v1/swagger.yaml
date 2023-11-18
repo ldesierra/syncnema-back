@@ -1,0 +1,192 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/contents/{id}":
+    get:
+      summary: Retrieves a specific content
+      tags:
+      - Contents
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Content Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    nullable: true
+                  title:
+                    type: string
+                    nullable: true
+                  image_url:
+                    type: string
+                    nullable: true
+                  trailer_url:
+                    type: string
+                    nullable: true
+                  director:
+                    type: string
+                    nullable: true
+                  creator:
+                    type: string
+                    nullable: true
+                  combined_plot:
+                    type: string
+                    nullable: true
+                  combined_release_date:
+                    type: string
+                    nullable: true
+                  combined_genres:
+                    type: string
+                    nullable: true
+                  combined_budget:
+                    type: integer
+                    nullable: true
+                  combined_revenue:
+                    type: integer
+                    nullable: true
+                  combined_runtime:
+                    type: integer
+                    description: Combined runtime of the content in seconds
+                    nullable: true
+                  total_rating:
+                    type: number
+                    nullable: true
+                  content_rating:
+                    type: string
+                    nullable: true
+                  rating:
+                    type: number
+                    nullable: true
+                  trivia:
+                    type: string
+                    nullable: true
+                  quotes:
+                    type: string
+                    nullable: true
+                  cast:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          nullable: true
+                        awards:
+                          type: array
+                          items:
+                            type: string
+                            nullable: true
+                          nullable: true
+                        image:
+                          type: string
+                          nullable: true
+                  platforms:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          nullable: true
+                        image:
+                          type: string
+                          nullable: true
+        '404':
+          description: Content Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+  "/contents":
+    get:
+      summary: Retrieves a list of contents
+      tags:
+      - Contents
+      parameters:
+      - name: genres
+        in: query
+        items:
+          type: string
+        schema:
+          type: array
+      - name: platforms
+        in: query
+        items:
+          type: string
+        schema:
+          type: array
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: size
+        in: query
+        schema:
+          type: integer
+      - name: query
+        in: query
+        schema:
+          type: string
+      - name: type
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: list of contents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        score:
+                          type: number
+                        record:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            title:
+                              type: string
+                            image_url:
+                              type: string
+                              nullable: true
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+  "/provenance":
+    get:
+      summary: Retrieves the provenance data in XML format
+      tags:
+      - Contents
+      responses:
+        '200':
+          description: provenance data found
+servers:
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: localhost:3000
